@@ -1,0 +1,63 @@
+message btPayload {
+
+    optional string addr         = 1; // Format : xx:xx:xx:xx:xx:xx //: BDRLEN=12=2*6
+
+    optional string name         = 2; //
+
+    optional BtifPayload    btif = 3;
+
+    message BtifPayload {
+
+        enum cmdTypeBtif {
+        /*00*/    INIT= 0 ;
+        /*01*/    ENABLE= 1 ;
+        /*02*/    DISABLE= 2 ;
+        /*03*/    CLEANUP= 3 ;
+        /*04*/    GET_ADAPTER_PROPERTIES= 4 ;
+        /*05*/    GET_ADAPTER_PROPERTY= 5 ;
+        /*06*/    SET_ADAPTER_PROPERTY= 6 ; // SET_ADAPTER_PROPERTY =  SET_ADAPTER_PROPERTY_BDNAME,
+        /*07*/    GET_REMOTE_DEVICE_PROPERTIES= 7 ;
+        /*08*/    GET_REMOTE_DEVICE_PROPERTY= 8 ;
+        /*09*/    SET_REMOTE_DEVICE_PROPERTY= 9 ;
+        /*10*/    GET_REMOTE_SERVICE_RECORD= 10 ;
+        /*11*/    GET_REMOTE_SERVICES= 11 ;
+        /*12*/    START_DISCOVERY= 12 ;
+        /*13*/    CANCEL_DISCOVERY= 13 ;
+        /*14*/    CREATE_BOND= 14 ;
+        /*15*/    REMOVE_BOND= 15 ;
+        /*16*/    CANCEL_BOND= 16 ;
+        /*17*/    PIN_REPLY= 17 ;
+        /*18*/    SSP_REPLY= 18 ;
+        /*19*/    GET_PROFILE_INTERFACE= 19 ;
+        /*20*/    DUT_MODE_CONFIGURE= 20 ;
+        /*21*/    DUT_MODE_SEND= 21 ;
+        /*22*/    LE_TEST_MODE= 22 ;
+        /*23*/    CONFIG_HCI_SNOOP_LOG= 23 ;
+        //... ... ...//
+        /*24*/    SET_ADAPTER_PROPERTY_BDNAME= 24 ;
+        /*25*/    SET_ADAPTER_PROPERTY_SCAN_MODE_NONE= 25 ;
+        /*26*/    SET_ADAPTER_PROPERTY_SCAN_MODE_CONNECTABLE= 26 ;
+        /*27*/    SET_ADAPTER_PROPERTY_SCAN_MODE_CONNECTABLE_DISCOVERABLE= 27 ;
+        /*28*/    SET_ADAPTER_PROPERTY_DISCOVERY_TIMEOUT_2M= 28 ;
+        /*29*/    SET_ADAPTER_PROPERTY_DISCOVERY_TIMEOUT_5M= 29 ;
+        /*30*/    SET_ADAPTER_PROPERTY_DISCOVERY_TIMEOUT_1H= 30 ;
+        /*31*/    SET_ADAPTER_PROPERTY_DISCOVERY_TIMEOUT_NE= 31 ;
+        }
+
+        optional cmdTypeBtif  cmd  = 4 [default = INIT];
+     }
+
+     optional BtePayload    bte = 5;
+
+     message BtePayload {
+
+        enum cmdTypeBte {
+            INQ_RES    = 100 ;
+            BOND_STATE = 101 ;
+            DISC_RES   = 102 ;
+        }
+
+        optional cmdTypeBte cmd  = 6 [default = INQ_RES];
+     }
+
+}
