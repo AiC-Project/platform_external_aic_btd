@@ -135,7 +135,7 @@ void readBody(int csock,google::protobuf::uint32 siz, int * msg_len , char* msg)
     //Assign ArrayInputStream with enough memory
     google::protobuf::io::ArrayInputStream ais(buffer, siz+4);
 
-        ALOGE(" readBody --  Assign ArrayInputStream with enough memory");
+    ALOGE(" readBody --  Assign ArrayInputStream with enough memory");
 
 
     CodedInputStream coded_input(&ais);
@@ -331,7 +331,7 @@ enum
 
 void *hdl_new_getprop()
 {
-    int cmd = 0;
+    int cmd = -1;
     char btprop[512];
     int tmp, i = -1;
 
