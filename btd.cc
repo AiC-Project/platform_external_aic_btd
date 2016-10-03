@@ -333,7 +333,7 @@ void *hdl_new_getprop()
 {
     int cmd = -1;
     char btprop[512];
-    int tmp, i = -1;
+    int tmp=-1, i=-1;
 
     char bd_name[512] ;
     char bd_addr[512] ;
