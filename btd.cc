@@ -49,6 +49,71 @@
 using namespace google::protobuf::io;
 using namespace android;
 
+/**
+ * ENCODE BT
+ **/
+#define HCI_LE_RECEIVER_TEST_OPCODE 0x201D
+#define HCI_LE_TRANSMITTER_TEST_OPCODE 0x201E
+#define HCI_LE_END_TEST_OPCODE 0x201F
+
+#define MASK_BTIF 0b10000000 // 0b 1000 0000
+#define MASK_BTE  0b01000000 // 0b 0100 0000
+
+#define setBTIF(zz) ( zz | MASK_BTIF )
+#define setBTE(zz)  ( zz | MASK_BTE  )
+
+#define isBTIF(vv) (( ( (vv&MASK_BTIF) >> 7)  && !( (vv&MASK_BTE )  >> 6) ) )
+#define isBTE(ww)  (( ( (ww&MASK_BTE ) >> 6)  && !( (ww&MASK_BTIF)  >> 7) ) )
+
+#define getBTIF(yy) ( yy & (~(MASK_BTE|MASK_BTIF)) )
+#define getBTE(yy)  ( yy & (~(MASK_BTE|MASK_BTIF)) )
+
+enum
+{
+/*00*/    INIT,
+/*01*/    ENABLE,
+/*02*/    DISABLE,
+/*03*/    CLEANUP,
+/*04*/    GET_ADAPTER_PROPERTIES,
+/*05*/    GET_ADAPTER_PROPERTY,
+/*06*/    SET_ADAPTER_PROPERTY, // SET_ADAPTER_PROPERTY =  SET_ADAPTER_PROPERTY_BDNAME,
+/*07*/    GET_REMOTE_DEVICE_PROPERTIES,
+/*08*/    GET_REMOTE_DEVICE_PROPERTY,
+/*09*/    SET_REMOTE_DEVICE_PROPERTY,
+/*10*/    GET_REMOTE_SERVICE_RECORD,
+/*11*/    GET_REMOTE_SERVICES,
+/*12*/    START_DISCOVERY,
+/*13*/    CANCEL_DISCOVERY,
+/*14*/    CREATE_BOND,
+/*15*/    REMOVE_BOND,
+/*16*/    CANCEL_BOND,
+/*17*/    PIN_REPLY,
+/*18*/    SSP_REPLY,
+/*19*/    GET_PROFILE_INTERFACE,
+/*20*/    DUT_MODE_CONFIGURE,
+/*21*/    DUT_MODE_SEND,
+/*22*/    LE_TEST_MODE,
+/*23*/    CONFIG_HCI_SNOOP_LOG,
+//... ... ...//
+/*24*/    SET_ADAPTER_PROPERTY_BDNAME,
+/*25*/    SET_ADAPTER_PROPERTY_SCAN_MODE_NONE,
+/*26*/    SET_ADAPTER_PROPERTY_SCAN_MODE_CONNECTABLE,
+/*27*/    SET_ADAPTER_PROPERTY_SCAN_MODE_CONNECTABLE_DISCOVERABLE,
+/*28*/    SET_ADAPTER_PROPERTY_DISCOVERY_TIMEOUT_2M,
+/*29*/    SET_ADAPTER_PROPERTY_DISCOVERY_TIMEOUT_5M,
+/*30*/    SET_ADAPTER_PROPERTY_DISCOVERY_TIMEOUT_1H,
+/*31*/    SET_ADAPTER_PROPERTY_DISCOVERY_TIMEOUT_NE
+};
+
+enum
+{
+        INQ_RES,
+        BOND_STATE,
+        DISC_RES
+};
+
+/**/
+
 void setMSG ( uint8_t * bd_addr,
               uint8_t * bd_name,
               uint8_t *typ,
@@ -71,9 +136,10 @@ void setMSG ( uint8_t * bd_addr,
 }
 
 
-void codeBT( btPayload * btData, uint8_t len, void *buf)
+int codeBT( btPayload * btData, void *buf)
 {
     google::protobuf::uint32 cmd ;
+    uint8_t typ;
 
     if(btData->has_btif()){
         cmd  = btData->btif().cmd();
@@ -81,25 +147,35 @@ void codeBT( btPayload * btData, uint8_t len, void *buf)
         cmd  = btData->bte().cmd();
     }
 
+        //header typ
+    if (cmd<100)
+        typ = (int)setBTIF(cmd)   ;
+    else if (cmd<104)
+        typ = (int)setBTE(cmd-100);
+
     uint8_t * bd_name=(uint8_t*)malloc(512*sizeof(uint8_t) );// btData->name();
     uint8_t * bd_addr=(uint8_t*)malloc(512*sizeof(uint8_t) );// btData->addr();
 
     if(btData->has_name())
-        memcpy( bd_name, ( char *)btData->name().c_str(), strlen (btData->name().c_str()));
+        strcpy(bd_name ,btData->name().c_str() );//memcpy( bd_name, btData->name().c_str(), btData->name().size());
     else
         strncpy( bd_name, "AiC", 3);
 
     if(btData->has_addr())
-        memcpy( bd_addr, ( char *)btData->name().c_str(), strlen (btData->addr().c_str()));
+        strcpy( bd_addr, btData->addr().c_str() );
     else
         strcpy( bd_addr, "@0E0E0E0E0E0E#620");
 
-    setMSG (  bd_addr,
+    uint8_t len =0;
+    setMSG (bd_addr,
             bd_name,
-            (char*)&cmd,
-            &len    ,  buf);
+            &typ   ,
+            &len   ,  buf);
 
-    return;
+    ALOGE(" codeBT -buf=%s -len is %d", (char*)buf, len);
+    ALOGE(" codeBT -btData->name()=%s -btData->addr()=%s",btData->name().c_str(),btData->addr().c_str());
+
+    return len;
 }
 
 google::protobuf::uint32 readHdr(char *buf)
@@ -112,7 +188,7 @@ google::protobuf::uint32 readHdr(char *buf)
   return size;
 }
 
-void readBody(int csock,google::protobuf::uint32 siz, int * msg_len , char* msg)
+uint8_t readBody(int csock,google::protobuf::uint32 siz , char* msg)
 {
 
     int bytecount;
@@ -156,10 +232,11 @@ void readBody(int csock,google::protobuf::uint32 siz, int * msg_len , char* msg)
     //Print the message
 
     // Code the message
-    codeBT( &payload , *msg_len, msg);
-    //ALOGE(" readBody --  Print the message %d - %d ", payload.has_cmd(), *msg_len);
+    uint8_t len = codeBT( &payload, msg);
+    ALOGE(" readBody --  Print the message %d - %d ", payload.has_name(), len);
+    ALOGE(" readBody --  Print the message %s ", payload.name().c_str() );
 
-  return ;
+  return len ;
 }
 
 int tcp_write_buff( void *data, int len)
@@ -249,7 +326,7 @@ void *hdl_player_conn(void * args){
     int client=0;
     int retry = 0;
     BTDLOG("%d" , (int)(*server));
-    int  msg_len ;
+    uint8_t  msg_len ;
     uint8_t * msg = (uint8_t*)calloc(1024, sizeof(uint8_t));
     unsigned char msg2[512] = {1 };
 
@@ -259,74 +336,16 @@ void *hdl_player_conn(void * args){
         //BTDLOG(" client accept %d", client);
         int rrr= recv( client, inbuf, 5, MSG_PEEK);
         if ( rrr > 0){
-            readBody(client,readHdr(inbuf),&msg_len, msg);
-            int siz = tcp_write_buff(msg2, msg_len + 3 );
-            SLOGD("siz= %d ; go fool bufff !!!", siz);
+            msg_len = readBody(client,readHdr(inbuf), msg);
+            int siz = tcp_write_buff(msg, (int)(msg_len) );
+            SLOGD("msg_len=%d, siz= %d ; go fool bufff !!!", (int)msg_len, siz);
             //BTDLOG("debug recv");
         }
     }//end while
     return NULL;
 }
 
-#define HCI_LE_RECEIVER_TEST_OPCODE 0x201D
-#define HCI_LE_TRANSMITTER_TEST_OPCODE 0x201E
-#define HCI_LE_END_TEST_OPCODE 0x201F
 
-#define MASK_BTIF 0b10000000 // 0b 1000 0000
-#define MASK_BTE  0b01000000 // 0b 0100 0000
-
-#define setBTIF(zz) ( zz | MASK_BTIF )
-#define setBTE(zz)  ( zz | MASK_BTE  )
-
-#define isBTIF(vv) (( ( (vv&MASK_BTIF) >> 7)  && !( (vv&MASK_BTE )  >> 6) ) )
-#define isBTE(ww)  (( ( (ww&MASK_BTE ) >> 6)  && !( (ww&MASK_BTIF)  >> 7) ) )
-
-#define getBTIF(yy) ( yy & (~(MASK_BTE|MASK_BTIF)) )
-#define getBTE(yy)  ( yy & (~(MASK_BTE|MASK_BTIF)) )
-
-enum
-{
-/*00*/    INIT,
-/*01*/    ENABLE,
-/*02*/    DISABLE,
-/*03*/    CLEANUP,
-/*04*/    GET_ADAPTER_PROPERTIES,
-/*05*/    GET_ADAPTER_PROPERTY,
-/*06*/    SET_ADAPTER_PROPERTY, // SET_ADAPTER_PROPERTY =  SET_ADAPTER_PROPERTY_BDNAME,
-/*07*/    GET_REMOTE_DEVICE_PROPERTIES,
-/*08*/    GET_REMOTE_DEVICE_PROPERTY,
-/*09*/    SET_REMOTE_DEVICE_PROPERTY,
-/*10*/    GET_REMOTE_SERVICE_RECORD,
-/*11*/    GET_REMOTE_SERVICES,
-/*12*/    START_DISCOVERY,
-/*13*/    CANCEL_DISCOVERY,
-/*14*/    CREATE_BOND,
-/*15*/    REMOVE_BOND,
-/*16*/    CANCEL_BOND,
-/*17*/    PIN_REPLY,
-/*18*/    SSP_REPLY,
-/*19*/    GET_PROFILE_INTERFACE,
-/*20*/    DUT_MODE_CONFIGURE,
-/*21*/    DUT_MODE_SEND,
-/*22*/    LE_TEST_MODE,
-/*23*/    CONFIG_HCI_SNOOP_LOG,
-//... ... ...//
-/*24*/    SET_ADAPTER_PROPERTY_BDNAME,
-/*25*/    SET_ADAPTER_PROPERTY_SCAN_MODE_NONE,
-/*26*/    SET_ADAPTER_PROPERTY_SCAN_MODE_CONNECTABLE,
-/*27*/    SET_ADAPTER_PROPERTY_SCAN_MODE_CONNECTABLE_DISCOVERABLE,
-/*28*/    SET_ADAPTER_PROPERTY_DISCOVERY_TIMEOUT_2M,
-/*29*/    SET_ADAPTER_PROPERTY_DISCOVERY_TIMEOUT_5M,
-/*30*/    SET_ADAPTER_PROPERTY_DISCOVERY_TIMEOUT_1H,
-/*31*/    SET_ADAPTER_PROPERTY_DISCOVERY_TIMEOUT_NE
-};
-
-enum
-{
-        INQ_RES,
-        BOND_STATE,
-        DISC_RES
-};
 
 
 void *hdl_new_getprop()
