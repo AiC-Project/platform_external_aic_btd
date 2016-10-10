@@ -124,21 +124,21 @@ void setMSG ( uint8_t * bd_addr,
     //name
     *len = *len + 1 ;
     uint8_t hdrlen=2;
-    memcpy(buf+hdrlen, (void*)bd_name, strlen(bd_name) );
+    memcpy((uint8_t*)buf+hdrlen, bd_name, strlen((char*)bd_name) );
 
     //addr
-    memcpy(buf+hdrlen+strlen(bd_name), (void*)bd_addr, strlen(bd_addr)+1);
+    memcpy((uint8_t*)buf+hdrlen+strlen((char*)bd_name), bd_addr, strlen((char*)bd_addr)+1);
 
     //header len
-    *len = strlen(bd_name) + strlen(bd_addr) + 1;
-    memcpy(buf+1, len, sizeof(char));
+    *len = strlen((char*)bd_name) + strlen((char*)bd_addr) + 1;
+    memcpy((uint8_t*)buf+1, len, sizeof(char));
     *len += hdrlen;
 }
 
 
 int codeBT( btPayload * btData, void *buf)
 {
-    google::protobuf::uint32 cmd ;
+    google::protobuf::uint32 cmd = 0 ;
     uint8_t typ;
 
     if(btData->has_btif()){
@@ -157,14 +157,14 @@ int codeBT( btPayload * btData, void *buf)
     uint8_t * bd_addr=(uint8_t*)malloc(512*sizeof(uint8_t) );// btData->addr();
 
     if(btData->has_name())
-        strcpy(bd_name ,btData->name().c_str() );//memcpy( bd_name, btData->name().c_str(), btData->name().size());
+        strcpy(reinterpret_cast<char*>(bd_name), btData->name().c_str() );
     else
-        strncpy( bd_name, "AiC", 3);
+        strncpy(reinterpret_cast<char*>(bd_name), "AiC", 3);
 
     if(btData->has_addr())
-        strcpy( bd_addr, btData->addr().c_str() );
+        strcpy(reinterpret_cast<char*>(bd_addr), btData->addr().c_str() );
     else
-        strcpy( bd_addr, "@0E0E0E0E0E0E#620");
+        strcpy(reinterpret_cast<char*>(bd_addr), "@0E0E0E0E0E0E#620");
 
     uint8_t len =0;
     setMSG (bd_addr,
@@ -188,10 +188,10 @@ google::protobuf::uint32 readHdr(char *buf)
   return size;
 }
 
-uint8_t readBody(int csock,google::protobuf::uint32 siz , char* msg)
+uint8_t readBody(int csock,google::protobuf::uint32 siz , uint8_t* msg)
 {
 
-    int bytecount;
+    unsigned int bytecount;
     btPayload  payload;
     char* buffer = (char*) calloc(siz+4, sizeof(char));//size of the payload and hdr
     //Read the entire buffer including the hdr
@@ -199,13 +199,13 @@ uint8_t readBody(int csock,google::protobuf::uint32 siz , char* msg)
     {
         ALOGE(" readBody: Error receiving data (%d)", errno);
         free((void*)buffer);
-        return;
+        return 0;
     }
     else if (bytecount != siz+4)
     {
         ALOGE(" readBody: Received the wrong payload size (expected %d, received %d)", siz+4, bytecount);
         free((void*)buffer);
-        return;
+        return 0;
     }
     ALOGE(" readBody --  Second read byte count is %d", bytecount);
     //Assign ArrayInputStream with enough memory
@@ -354,8 +354,8 @@ void *hdl_new_getprop()
     char btprop[512];
     int tmp=-1, i=-1;
 
-    char bd_name[512] ;
-    char bd_addr[512] ;
+    uint8_t bd_name[512] ;
+    uint8_t bd_addr[512] ;
     uint8_t hdrlen, bdnamelen, bdaddrlen, len = 0;
     uint8_t typ;
 
@@ -379,8 +379,8 @@ void *hdl_new_getprop()
                 case -1:  //acl
                         BTDLOG(":: acl ");
 
-                        strcpy(msg2,"error");
-                        len = strlen (msg2);
+                        strcpy(reinterpret_cast<char*>(msg2),"error");
+                        len = strlen(reinterpret_cast<char*>(msg2));
 
                         memcpy(buf, &len, sizeof(char));
                         memcpy(buf+1, (void*)msg2, len+1);
@@ -391,17 +391,17 @@ void *hdl_new_getprop()
                         memset (bd_addr, 0, 512);
                         memset (buf, 0, 512);
                         BTDLOG(":: default A ");
-                        property_get(PROP_BT_LOCAL_BDNAME, bd_name, "aic");
+                        property_get(PROP_BT_LOCAL_BDNAME, reinterpret_cast<char*>(bd_name), "aic");
 
-                        if (strlen(bd_name) > 8){
-                                strncpy(bd_name,bd_name,8);
+                        if (strlen(reinterpret_cast<char*>(bd_name)) > 8){
+                                strncpy(reinterpret_cast<char*>(bd_name),reinterpret_cast<char*>(bd_name),8);
                                 bd_name[8]='\0';
                         }
 
-                        bdnamelen=strlen(bd_name);
+                        bdnamelen=strlen(reinterpret_cast<char*>(bd_name));
 
-                        property_get(PROP_BT_REMOTE_BDADDR, bd_addr, "@0F0F0F0F0F0F#20C");//0x20, 0x02, 0x0C
-                        bdaddrlen=strlen(bd_name);
+                        property_get(PROP_BT_REMOTE_BDADDR, reinterpret_cast<char*>(bd_addr), "@0F0F0F0F0F0F#20C");//0x20, 0x02, 0x0C
+                        bdaddrlen=strlen(reinterpret_cast<char*>(bd_name));
 
                         //header typ
                         if (cmd<100)
@@ -434,7 +434,7 @@ int main (int argc, char * argv[])
     if ((sim_server = start_server(SIM_BT_PORT)) == -1)
     {
         BTDLOG(" BT Unable to create socket\n");
-        return NULL;
+        return -1;
     }
     pthread_t *thread0;
     pthread_t *thread1;
