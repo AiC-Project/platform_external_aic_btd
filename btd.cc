@@ -35,11 +35,16 @@
 
 #include <string.h>
 
-#define KEY_PREFIX "aicd."
-#define PROP_BT_ENABLE                  KEY_PREFIX "bt.enable"
-#define PROP_BT_LOCAL_BDNAME          KEY_PREFIX "bt.local.bdname"
-#define PROP_BT_REMOTE_BDNAME          KEY_PREFIX "bt.remote.bdname"
-#define PROP_BT_REMOTE_BDADDR           KEY_PREFIX "bt.remote.bdaddr"
+
+#define KEY_PREFIX "aicd"
+#define PROP_BTD KEY_PREFIX".btd"
+
+#define PROP_ACT PROP_BTD".action" //"cmd:name@addr#type"
+
+#define PROP_CMD PROP_BTD".cmd"
+#define PROP_ADR PROP_BTD".addr"
+#define PROP_NAM PROP_BTD".name"
+#define PROP_TYP PROP_BTD".type"
 
 /*****************************************************************************
 **   Logger API
@@ -107,12 +112,62 @@ enum
 
 enum
 {
-        INQ_RES,
-        BOND_STATE,
-        DISC_RES
+    INQ_RES,
+    BOND_STATE,
+    DISC_RES
 };
 
 /**/
+
+void setBtdPropInit( const char *cmd, const char *addr, const char *name, const char *type){
+    property_set(PROP_CMD, cmd);
+    property_set(PROP_ADR, addr);
+    property_set(PROP_NAM, name);
+    property_set(PROP_TYP, type);
+}
+
+void setBtdProp(char *cmd, char *addr, char *name, char *type){
+
+    if (strcmp(PROP_CMD, cmd) ){
+        property_set(PROP_CMD, cmd);
+    }
+
+    if (strcmp(PROP_NAM, name) ){
+        property_set(PROP_NAM, name);
+    }
+
+    if (strcmp(PROP_ADR, addr) ){
+        property_set(PROP_ADR, addr);
+    }
+
+    if (strcmp(PROP_TYP, type) ){
+        property_set(PROP_TYP, type);
+    }
+
+    property_get(PROP_CMD, cmd, "-1");
+    property_get(PROP_NAM, name, "aic");
+    property_get(PROP_ADR, addr, "FF");
+    property_get(PROP_CMD, type, "640");
+
+    //BTDLOG("%s  -  %s - %s - %s", PROP_CMD ,PROP_ADR, PROP_NAM ,PROP_TYP);
+
+}
+
+void splitAction( char *action, char *cmd, char *addr, char *name, char *type ){
+
+    //char str[80] = "-1:aic@FFFFF#20C";
+    const char okCmd[2] = ":";
+    const char okNam[2] = "@";
+    const char okAdr[2] = "#";
+
+    char *token;
+    token = strtok(action, okCmd);strcpy(cmd ,token);
+    token = strtok(NULL, okNam  );strcpy(name,token);
+    token = strtok(NULL, okAdr  );strcpy(addr,token);
+    token = strtok(NULL, okAdr  );strcpy(type,token);
+
+    //BTDLOG("%s  -  %s - %s - %s", cmd, addr, name, type);
+}
 
 void setMSG ( uint8_t * bd_addr,
               uint8_t * bd_name,
@@ -180,12 +235,12 @@ int codeBT( btPayload * btData, void *buf)
 
 google::protobuf::uint32 readHdr(char *buf)
 {
-  google::protobuf::uint32 size;
-  google::protobuf::io::ArrayInputStream ais(buf,4);
-  CodedInputStream coded_input(&ais);
-  coded_input.ReadVarint32(&size);//Decode the HDR and get the size
-  ALOGE(" readHdr --   size of payload is %d", size);
-  return size;
+    google::protobuf::uint32 size;
+    google::protobuf::io::ArrayInputStream ais(buf,4);
+    CodedInputStream coded_input(&ais);
+    coded_input.ReadVarint32(&size);//Decode the HDR and get the size
+    ALOGE(" readHdr --   size of payload is %d", size);
+    return size;
 }
 
 uint8_t readBody(int csock,google::protobuf::uint32 siz , uint8_t* msg)
@@ -241,6 +296,7 @@ uint8_t readBody(int csock,google::protobuf::uint32 siz , uint8_t* msg)
 
 int tcp_write_buff( void *data, int len)
 {
+    ALOGE(" tcp_write_buff in  ");
     struct sockaddr_in local_nfc_server;
     local_nfc_server.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     local_nfc_server.sin_family = AF_INET;
@@ -255,7 +311,7 @@ int tcp_write_buff( void *data, int len)
     }
 
     int err = send(fd_local, data, len, 0);
-
+    ALOGE(" tcp_write_buff out  ");
     close(fd_local);
 
     return (err);
@@ -345,30 +401,37 @@ void *hdl_player_conn(void * args){
     return NULL;
 }
 
-
-
-
 void *hdl_new_getprop()
 {
+    char action[512];
+
     int cmd = -1;
-    char btprop[512];
     int tmp=-1, i=-1;
 
-    uint8_t bd_name[512] ;
-    uint8_t bd_addr[512] ;
+    char bd_name[512] ;
+    char bd_addr[512] ;
     uint8_t hdrlen, bdnamelen, bdaddrlen, len = 0;
     uint8_t typ;
 
     void *buf = (void *) malloc (512 * sizeof(uint8_t));
-    unsigned char msg2[512] = {1 };
+    unsigned char msg2[512] = {1};
+
+    char *s_cmd,  *addr,  *name,  *type;
+
+    s_cmd=(char*)malloc(512*sizeof(uint8_t));
+    name=(char*)malloc(512*sizeof(uint8_t));
+    addr=(char*)malloc(512*sizeof(uint8_t));
+    type=(char*)malloc(512*sizeof(uint8_t));
+
+    setBtdPropInit("1", "0F0F", "AIC", "640");
 
     while(1){
-        property_get(PROP_BT_ENABLE, btprop, "-1");
-        //snprintf(cmd, 1, "%d", btprop);
-        cmd=atoi(btprop);
+        property_get(PROP_ACT, action, "-1:aic@FFFFF#20C");
+        splitAction( action, s_cmd, addr, name, type);
+        setBtdProp( s_cmd, addr, name, type);
 
+        cmd=atoi(s_cmd);
         sleep(1);
-
         //BTDLOG(":: Waiting cmd=%d tmp=%d", cmd, tmp);
 
         if ( cmd != tmp ){  // Detect prop changing
@@ -386,22 +449,29 @@ void *hdl_new_getprop()
                         memcpy(buf+1, (void*)msg2, len+1);
 
                         i  = tcp_write_buff( buf, len+1);
+                     break;
+
                 default:
                         memset (bd_name, 0, 512);
                         memset (bd_addr, 0, 512);
                         memset (buf, 0, 512);
-                        BTDLOG(":: default A ");
-                        property_get(PROP_BT_LOCAL_BDNAME, reinterpret_cast<char*>(bd_name), "aic");
+                        BTDLOG(":: default A ::%d %s", cmd , s_cmd);
+                        strcpy(bd_name, name);
 
-                        if (strlen(reinterpret_cast<char*>(bd_name)) > 8){
-                                strncpy(reinterpret_cast<char*>(bd_name),reinterpret_cast<char*>(bd_name),8);
-                                bd_name[8]='\0';
+                        if (strlen(bd_name) > 8){
+                            strncpy(bd_name,bd_name,8);
+                            bd_name[8]='\0';
                         }
 
-                        bdnamelen=strlen(reinterpret_cast<char*>(bd_name));
+                        BTDLOG("%s  -  %s - %s ", bd_name ,bd_addr);
+                        bdnamelen=strlen(bd_name);
 
-                        property_get(PROP_BT_REMOTE_BDADDR, reinterpret_cast<char*>(bd_addr), "@0F0F0F0F0F0F#20C");//0x20, 0x02, 0x0C
-                        bdaddrlen=strlen(reinterpret_cast<char*>(bd_name));
+                        strcpy(bd_addr, addr);
+                        strcpy(bd_addr,"@");
+                        strcat(bd_addr, addr);
+                        strcat(bd_addr,"#");
+                        strcat(bd_addr, type);
+                        bdaddrlen=strlen(bd_addr);
 
                         //header typ
                         if (cmd<100)
@@ -409,22 +479,22 @@ void *hdl_new_getprop()
                         else if (cmd<104)
                             typ = (int)setBTE(cmd-100);
 
-                        setMSG (  bd_addr,
-                                    bd_name,
+                        setMSG (    reinterpret_cast<uint8_t*>(bd_addr),
+                                    reinterpret_cast<uint8_t*>(bd_name),
                                     &typ,
-                                    &len    ,  buf);
+                                    &len,  buf);
 
-                                    //send
+                        //send
                         i  = tcp_write_buff(  buf, len);
                         BTDLOG(":: default C  %d %s",i, (char*)buf);
-                break;
+                    break;
             }//end switch
         }// end if cmd
     }
     return NULL;
 }//end hdl_new_getprop
 
-int main (int argc, char * argv[])
+int main ( )
 {
     int sim_server = -1;
 
@@ -443,7 +513,7 @@ int main (int argc, char * argv[])
 
     BTDLOG(":: Btd app terminating");
 
-    int s = pthread_create(thread0, NULL, &hdl_player_conn, (void*)&sim_server);
+    int s  = pthread_create(thread0, NULL, &hdl_player_conn, (void*)&sim_server);
     int s1 = pthread_create(thread1, NULL, &hdl_new_getprop, NULL);
 
     pthread_join(*thread0, NULL);
