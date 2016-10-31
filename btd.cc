@@ -64,8 +64,8 @@ using namespace android;
 #define MASK_BTIF 0b10000000 // 0b 1000 0000
 #define MASK_BTE  0b01000000 // 0b 0100 0000
 
-#define setBTIF(zz) ( zz | MASK_BTIF )
-#define setBTE(zz)  ( zz | MASK_BTE  )
+
+
 
 #define isBTIF(vv) (( ( (vv&MASK_BTIF) >> 7)  && !( (vv&MASK_BTE )  >> 6) ) )
 #define isBTE(ww)  (( ( (ww&MASK_BTE ) >> 6)  && !( (ww&MASK_BTIF)  >> 7) ) )
@@ -116,6 +116,14 @@ enum
     BOND_STATE,
     DISC_RES
 };
+
+uint8_t setBTIF(uint32_t zz) {
+    return ( (zz&0x000000ff)|MASK_BTIF);
+}
+
+uint8_t setBTE(uint32_t zz) {
+    return ( (zz&0x000000ff)| MASK_BTE );
+}
 
 /**/
 
@@ -204,9 +212,9 @@ int codeBT( btPayload * btData, void *buf)
 
         //header typ
     if (cmd<100)
-        typ = (int)setBTIF(cmd)   ;
+        typ = setBTIF(cmd)   ;
     else if (cmd<104)
-        typ = (int)setBTE(cmd-100);
+        typ = setBTE(cmd-100);
 
     uint8_t * bd_name=(uint8_t*)malloc(512*sizeof(uint8_t) );// btData->name();
     uint8_t * bd_addr=(uint8_t*)malloc(512*sizeof(uint8_t) );// btData->addr();
@@ -463,7 +471,6 @@ void *hdl_new_getprop()
                             bd_name[8]='\0';
                         }
 
-                        BTDLOG("%s  -  %s - %s ", bd_name ,bd_addr);
                         bdnamelen=strlen(bd_name);
 
                         strcpy(bd_addr, addr);
@@ -473,11 +480,13 @@ void *hdl_new_getprop()
                         strcat(bd_addr, type);
                         bdaddrlen=strlen(bd_addr);
 
+                        BTDLOG("  (%s  -  %s)", bd_name ,bd_addr);
+
                         //header typ
                         if (cmd<100)
-                            typ = (int)setBTIF(cmd)   ;
+                            typ = setBTIF(cmd)   ;
                         else if (cmd<104)
-                            typ = (int)setBTE(cmd-100);
+                            typ = setBTE(cmd-100);
 
                         setMSG (    reinterpret_cast<uint8_t*>(bd_addr),
                                     reinterpret_cast<uint8_t*>(bd_name),
@@ -486,7 +495,7 @@ void *hdl_new_getprop()
 
                         //send
                         i  = tcp_write_buff(  buf, len);
-                        BTDLOG(":: default C  %d %s",i, (char*)buf);
+                        BTDLOG(":: default C  %d %s %d",i, (char*)buf ,typ );
                     break;
             }//end switch
         }// end if cmd
