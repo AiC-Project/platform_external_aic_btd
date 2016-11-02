@@ -155,7 +155,7 @@ void setBtdProp(char *cmd, char *addr, char *name, char *type){
     property_get(PROP_CMD, cmd, "-1");
     property_get(PROP_NAM, name, "aic");
     property_get(PROP_ADR, addr, "FF");
-    property_get(PROP_CMD, type, "640");
+    property_get(PROP_TYP, type, "640");
 
     //BTDLOG("%s  -  %s - %s - %s", PROP_CMD ,PROP_ADR, PROP_NAM ,PROP_TYP);
 
@@ -473,11 +473,7 @@ void *hdl_new_getprop()
 
                         bdnamelen=strlen(bd_name);
 
-                        strcpy(bd_addr, addr);
-                        strcpy(bd_addr,"@");
-                        strcat(bd_addr, addr);
-                        strcat(bd_addr,"#");
-                        strcat(bd_addr, type);
+                        sprintf(bd_addr,"@%s#%s",addr,type);
                         bdaddrlen=strlen(bd_addr);
 
                         BTDLOG("  (%s  -  %s)", bd_name ,bd_addr);
