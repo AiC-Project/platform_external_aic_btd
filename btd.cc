@@ -39,12 +39,12 @@
 #define KEY_PREFIX "aicd"
 #define PROP_BTD KEY_PREFIX".btd"
 
-#define PROP_ACT PROP_BTD".action" //"cmd:name@addr#type"
+#define PROP_ACT PROP_BTD".action" //"cmd:name@addr#devclass"
 
 #define PROP_CMD PROP_BTD".cmd"
 #define PROP_ADR PROP_BTD".addr"
 #define PROP_NAM PROP_BTD".name"
-#define PROP_TYP PROP_BTD".type"
+#define PROP_DCL PROP_BTD".devclass"
 
 /*****************************************************************************
 **   Logger API
@@ -127,14 +127,14 @@ uint8_t setBTE(uint32_t zz) {
 
 /**/
 
-void setBtdPropInit( const char *cmd, const char *addr, const char *name, const char *type){
+void setBtdPropInit( const char *cmd, const char *addr, const char *name, const char *devclass){
     property_set(PROP_CMD, cmd);
     property_set(PROP_ADR, addr);
     property_set(PROP_NAM, name);
-    property_set(PROP_TYP, type);
+    property_set(PROP_DCL, devclass);
 }
 
-void setBtdProp(char *cmd, char *addr, char *name, char *type){
+void setBtdProp(char *cmd, char *addr, char *name, char *devclass){
 
     if (strcmp(PROP_CMD, cmd) ){
         property_set(PROP_CMD, cmd);
@@ -148,20 +148,20 @@ void setBtdProp(char *cmd, char *addr, char *name, char *type){
         property_set(PROP_ADR, addr);
     }
 
-    if (strcmp(PROP_TYP, type) ){
-        property_set(PROP_TYP, type);
+    if (strcmp(PROP_DCL, devclass) ){
+        property_set(PROP_DCL, devclass);
     }
 
     property_get(PROP_CMD, cmd, "-1");
     property_get(PROP_NAM, name, "aic");
     property_get(PROP_ADR, addr, "FF");
-    property_get(PROP_TYP, type, "640");
+    property_get(PROP_DCL, devclass, "640");
 
-    //BTDLOG("%s  -  %s - %s - %s", PROP_CMD ,PROP_ADR, PROP_NAM ,PROP_TYP);
+    //BTDLOG("%s  -  %s - %s - %s", PROP_CMD ,PROP_ADR, PROP_NAM ,PROP_DCL);
 
 }
 
-void splitAction( char *action, char *cmd, char *addr, char *name, char *type ){
+void splitAction( char *action, char *cmd, char *addr, char *name, char *devclass ){
 
     //char str[80] = "-1:aic@FFFFF#20C";
     const char okCmd[2] = ":";
@@ -172,30 +172,43 @@ void splitAction( char *action, char *cmd, char *addr, char *name, char *type ){
     token = strtok(action, okCmd);strcpy(cmd ,token);
     token = strtok(NULL, okNam  );strcpy(name,token);
     token = strtok(NULL, okAdr  );strcpy(addr,token);
-    token = strtok(NULL, okAdr  );strcpy(type,token);
+    token = strtok(NULL, okAdr  );strcpy(devclass,token);
 
-    //BTDLOG("%s  -  %s - %s - %s", cmd, addr, name, type);
+    //BTDLOG("%s  -  %s - %s - %s", cmd, addr, name, devclass);
 }
 
-void setMSG ( uint8_t * bd_addr,
+void setMSG ( uint8_t * addr,
               uint8_t * bd_name,
+              uint8_t * devClass,
               uint8_t *typ,
-              uint8_t *len      ,  void *buf )
+              uint8_t *lenMsg      ,  void *buf )
 {
     memcpy(buf, typ, sizeof(char));
 
+    uint8_t *bd_addr=(uint8_t*)malloc(strlen(addr) + 1);
+    sprintf(bd_addr,"@%s",addr);
+    uint8_t *bd_devClass=(uint8_t*)malloc(strlen(devClass) + 1);
+    sprintf(bd_devClass,"#%s",devClass);
+
     //name
-    *len = *len + 1 ;
+    *lenMsg = *lenMsg + 1 ;
     uint8_t hdrlen=2;
-    memcpy((uint8_t*)buf+hdrlen, bd_name, strlen((char*)bd_name) );
+    uint8_t lenName   = strlen((char*)bd_name);
+    uint8_t lenAddr   = strlen((char*)bd_addr);
+    uint8_t lenDevClass = strlen((char*)bd_devClass);
+
+    memcpy((uint8_t*)buf+hdrlen, bd_name,  lenName ) ;
 
     //addr
-    memcpy((uint8_t*)buf+hdrlen+strlen((char*)bd_name), bd_addr, strlen((char*)bd_addr)+1);
+    memcpy((uint8_t*)buf+hdrlen+lenName, bd_addr, lenAddr);
+
+    //dev class
+    memcpy((uint8_t*)buf+hdrlen+lenName+lenAddr, bd_devClass, lenDevClass);
 
     //header len
-    *len = strlen((char*)bd_name) + strlen((char*)bd_addr) + 1;
-    memcpy((uint8_t*)buf+1, len, sizeof(char));
-    *len += hdrlen;
+    *lenMsg = lenName + lenAddr + lenDevClass;
+    memcpy((uint8_t*)buf+1, lenMsg, sizeof(char));
+    *lenMsg += hdrlen;
 }
 
 
@@ -218,6 +231,7 @@ int codeBT( btPayload * btData, void *buf)
 
     uint8_t * bd_name=(uint8_t*)malloc(512*sizeof(uint8_t) );// btData->name();
     uint8_t * bd_addr=(uint8_t*)malloc(512*sizeof(uint8_t) );// btData->addr();
+    uint8_t * bd_devClass=(uint8_t*)malloc(512*sizeof(uint8_t) );// btData->devclass();
 
     if(btData->has_name())
         strcpy(reinterpret_cast<char*>(bd_name), btData->name().c_str() );
@@ -227,16 +241,22 @@ int codeBT( btPayload * btData, void *buf)
     if(btData->has_addr())
         strcpy(reinterpret_cast<char*>(bd_addr), btData->addr().c_str() );
     else
-        strcpy(reinterpret_cast<char*>(bd_addr), "@0E0E0E0E0E0E#620");
+        strcpy(reinterpret_cast<char*>(bd_addr), "@0E0E0E0E0E0E");
+
+    if(btData->has_devclass())
+        strcpy(reinterpret_cast<char*>(bd_devClass), btData->devclass().c_str() );
+    else
+        strcpy(reinterpret_cast<char*>(bd_devClass), "#620");
 
     uint8_t len =0;
     setMSG (bd_addr,
             bd_name,
+            bd_devClass,
             &typ   ,
             &len   ,  buf);
 
     ALOGE(" codeBT -buf=%s -len is %d", (char*)buf, len);
-    ALOGE(" codeBT -btData->name()=%s -btData->addr()=%s",btData->name().c_str(),btData->addr().c_str());
+    ALOGE(" codeBT -btData->name()=%s -btData->addr()=%s -btData->devclass()=%s",btData->name().c_str(),btData->addr().c_str(),btData->devclass().c_str());
 
     return len;
 }
@@ -404,6 +424,7 @@ void *hdl_player_conn(void * args){
             int siz = tcp_write_buff(msg, (int)(msg_len) );
             SLOGD("msg_len=%d, siz= %d ; go fool bufff !!!", (int)msg_len, siz);
             //BTDLOG("debug recv");
+            BTDLOG(":: debug recv %s", (char*)msg);
         }
     }//end while
     return NULL;
@@ -418,25 +439,26 @@ void *hdl_new_getprop()
 
     char bd_name[512] ;
     char bd_addr[512] ;
-    uint8_t hdrlen, bdnamelen, bdaddrlen, len = 0;
+    char bd_class[512] ;
+    uint8_t len = 0;
     uint8_t typ;
 
     void *buf = (void *) malloc (512 * sizeof(uint8_t));
     unsigned char msg2[512] = {1};
 
-    char *s_cmd,  *addr,  *name,  *type;
+    char *s_cmd,  *addr,  *name,  *devclass;
 
     s_cmd=(char*)malloc(512*sizeof(uint8_t));
     name=(char*)malloc(512*sizeof(uint8_t));
     addr=(char*)malloc(512*sizeof(uint8_t));
-    type=(char*)malloc(512*sizeof(uint8_t));
+    devclass=(char*)malloc(512*sizeof(uint8_t));
 
     setBtdPropInit("1", "0F0F", "AIC", "640");
 
     while(1){
         property_get(PROP_ACT, action, "-1:aic@FFFFF#20C");
-        splitAction( action, s_cmd, addr, name, type);
-        setBtdProp( s_cmd, addr, name, type);
+        splitAction( action, s_cmd, addr, name, devclass);
+        setBtdProp( s_cmd, addr, name, devclass);
 
         cmd=atoi(s_cmd);
         sleep(1);
@@ -471,21 +493,15 @@ void *hdl_new_getprop()
                             bd_name[8]='\0';
                         }
 
-                        bdnamelen=strlen(bd_name);
-
-                        sprintf(bd_addr,"@%s#%s",addr,type);
-                        bdaddrlen=strlen(bd_addr);
-
-                        BTDLOG("  (%s  -  %s)", bd_name ,bd_addr);
-
                         //header typ
                         if (cmd<100)
                             typ = setBTIF(cmd)   ;
                         else if (cmd<104)
                             typ = setBTE(cmd-100);
 
-                        setMSG (    reinterpret_cast<uint8_t*>(bd_addr),
+                        setMSG (    reinterpret_cast<uint8_t*>(addr),
                                     reinterpret_cast<uint8_t*>(bd_name),
+                                    reinterpret_cast<uint8_t*>(devclass),
                                     &typ,
                                     &len,  buf);
 

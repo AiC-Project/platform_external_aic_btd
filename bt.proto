@@ -2,9 +2,11 @@ message btPayload {
 
     optional string addr         = 1; // Format : xx:xx:xx:xx:xx:xx //: BDRLEN=12=2*6
 
-    optional string name         = 2; //
+    optional string name         = 2; // name < (9 char)
 
-    optional BtifPayload    btif = 3;
+    optional string devclass     = 3; // device class (hex) [ 0x100 =< devclass < 0x1F00 ]  cf. http://bluetooth-pentest.narod.ru/software/bluetooth_class_of_device-service_generator.html
+
+    optional BtifPayload    btif = 4;
 
     message BtifPayload {
 
@@ -44,10 +46,10 @@ message btPayload {
         /*31*/    SET_ADAPTER_PROPERTY_DISCOVERY_TIMEOUT_NE= 31 ;
         }
 
-        optional cmdTypeBtif  cmd  = 4 [default = INIT];
+        optional cmdTypeBtif  cmd  = 5 [default = INIT];
      }
 
-     optional BtePayload    bte = 5;
+     optional BtePayload    bte = 6;
 
      message BtePayload {
 
@@ -57,7 +59,7 @@ message btPayload {
             DISC_RES   = 102 ;
         }
 
-        optional cmdTypeBte cmd  = 6 [default = INQ_RES];
+        optional cmdTypeBte cmd  = 7 [default = INQ_RES];
      }
 
 }
