@@ -213,10 +213,10 @@ class btPayload_BtifPayload : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // optional .btPayload.BtifPayload.cmdTypeBtif cmd = 4 [default = INIT];
+  // optional .btPayload.BtifPayload.cmdTypeBtif cmd = 5 [default = INIT];
   inline bool has_cmd() const;
   inline void clear_cmd();
-  static const int kCmdFieldNumber = 4;
+  static const int kCmdFieldNumber = 5;
   inline ::btPayload_BtifPayload_cmdTypeBtif cmd() const;
   inline void set_cmd(::btPayload_BtifPayload_cmdTypeBtif value);
   
@@ -327,10 +327,10 @@ class btPayload_BtePayload : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // optional .btPayload.BtePayload.cmdTypeBte cmd = 6 [default = INQ_RES];
+  // optional .btPayload.BtePayload.cmdTypeBte cmd = 7 [default = INQ_RES];
   inline bool has_cmd() const;
   inline void clear_cmd();
-  static const int kCmdFieldNumber = 6;
+  static const int kCmdFieldNumber = 7;
   inline ::btPayload_BtePayload_cmdTypeBte cmd() const;
   inline void set_cmd(::btPayload_BtePayload_cmdTypeBte value);
   
@@ -439,17 +439,27 @@ class btPayload : public ::google::protobuf::Message {
   inline void set_name(const char* value, size_t size);
   inline ::std::string* mutable_name();
   
-  // optional .btPayload.BtifPayload btif = 3;
+  // optional string devclass = 3;
+  inline bool has_devclass() const;
+  inline void clear_devclass();
+  static const int kDevclassFieldNumber = 3;
+  inline const ::std::string& devclass() const;
+  inline void set_devclass(const ::std::string& value);
+  inline void set_devclass(const char* value);
+  inline void set_devclass(const char* value, size_t size);
+  inline ::std::string* mutable_devclass();
+  
+  // optional .btPayload.BtifPayload btif = 4;
   inline bool has_btif() const;
   inline void clear_btif();
-  static const int kBtifFieldNumber = 3;
+  static const int kBtifFieldNumber = 4;
   inline const ::btPayload_BtifPayload& btif() const;
   inline ::btPayload_BtifPayload* mutable_btif();
   
-  // optional .btPayload.BtePayload bte = 5;
+  // optional .btPayload.BtePayload bte = 6;
   inline bool has_bte() const;
   inline void clear_bte();
-  static const int kBteFieldNumber = 5;
+  static const int kBteFieldNumber = 6;
   inline const ::btPayload_BtePayload& bte() const;
   inline ::btPayload_BtePayload* mutable_bte();
   
@@ -462,13 +472,15 @@ class btPayload : public ::google::protobuf::Message {
   static const ::std::string _default_addr_;
   ::std::string* name_;
   static const ::std::string _default_name_;
+  ::std::string* devclass_;
+  static const ::std::string _default_devclass_;
   ::btPayload_BtifPayload* btif_;
   ::btPayload_BtePayload* bte_;
   friend void  protobuf_AddDesc_external_2faic_2fbtd_2fbt_2eproto();
   friend void protobuf_AssignDesc_external_2faic_2fbtd_2fbt_2eproto();
   friend void protobuf_ShutdownFile_external_2faic_2fbtd_2fbt_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(4 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -491,7 +503,7 @@ class btPayload : public ::google::protobuf::Message {
 
 // btPayload_BtifPayload
 
-// optional .btPayload.BtifPayload.cmdTypeBtif cmd = 4 [default = INIT];
+// optional .btPayload.BtifPayload.cmdTypeBtif cmd = 5 [default = INIT];
 inline bool btPayload_BtifPayload::has_cmd() const {
   return _has_bit(0);
 }
@@ -512,7 +524,7 @@ inline void btPayload_BtifPayload::set_cmd(::btPayload_BtifPayload_cmdTypeBtif v
 
 // btPayload_BtePayload
 
-// optional .btPayload.BtePayload.cmdTypeBte cmd = 6 [default = INQ_RES];
+// optional .btPayload.BtePayload.cmdTypeBte cmd = 7 [default = INQ_RES];
 inline bool btPayload_BtePayload::has_cmd() const {
   return _has_bit(0);
 }
@@ -617,36 +629,78 @@ inline ::std::string* btPayload::mutable_name() {
   return name_;
 }
 
-// optional .btPayload.BtifPayload btif = 3;
-inline bool btPayload::has_btif() const {
+// optional string devclass = 3;
+inline bool btPayload::has_devclass() const {
   return _has_bit(2);
+}
+inline void btPayload::clear_devclass() {
+  if (devclass_ != &_default_devclass_) {
+    devclass_->clear();
+  }
+  _clear_bit(2);
+}
+inline const ::std::string& btPayload::devclass() const {
+  return *devclass_;
+}
+inline void btPayload::set_devclass(const ::std::string& value) {
+  _set_bit(2);
+  if (devclass_ == &_default_devclass_) {
+    devclass_ = new ::std::string;
+  }
+  devclass_->assign(value);
+}
+inline void btPayload::set_devclass(const char* value) {
+  _set_bit(2);
+  if (devclass_ == &_default_devclass_) {
+    devclass_ = new ::std::string;
+  }
+  devclass_->assign(value);
+}
+inline void btPayload::set_devclass(const char* value, size_t size) {
+  _set_bit(2);
+  if (devclass_ == &_default_devclass_) {
+    devclass_ = new ::std::string;
+  }
+  devclass_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* btPayload::mutable_devclass() {
+  _set_bit(2);
+  if (devclass_ == &_default_devclass_) {
+    devclass_ = new ::std::string;
+  }
+  return devclass_;
+}
+
+// optional .btPayload.BtifPayload btif = 4;
+inline bool btPayload::has_btif() const {
+  return _has_bit(3);
 }
 inline void btPayload::clear_btif() {
   if (btif_ != NULL) btif_->::btPayload_BtifPayload::Clear();
-  _clear_bit(2);
+  _clear_bit(3);
 }
 inline const ::btPayload_BtifPayload& btPayload::btif() const {
   return btif_ != NULL ? *btif_ : *default_instance_->btif_;
 }
 inline ::btPayload_BtifPayload* btPayload::mutable_btif() {
-  _set_bit(2);
+  _set_bit(3);
   if (btif_ == NULL) btif_ = new ::btPayload_BtifPayload;
   return btif_;
 }
 
-// optional .btPayload.BtePayload bte = 5;
+// optional .btPayload.BtePayload bte = 6;
 inline bool btPayload::has_bte() const {
-  return _has_bit(3);
+  return _has_bit(4);
 }
 inline void btPayload::clear_bte() {
   if (bte_ != NULL) bte_->::btPayload_BtePayload::Clear();
-  _clear_bit(3);
+  _clear_bit(4);
 }
 inline const ::btPayload_BtePayload& btPayload::bte() const {
   return bte_ != NULL ? *bte_ : *default_instance_->bte_;
 }
 inline ::btPayload_BtePayload* btPayload::mutable_bte() {
-  _set_bit(3);
+  _set_bit(4);
   if (bte_ == NULL) bte_ = new ::btPayload_BtePayload;
   return bte_;
 }

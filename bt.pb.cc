@@ -34,9 +34,10 @@ void protobuf_AssignDesc_external_2faic_2fbtd_2fbt_2eproto() {
       "external/aic/btd/bt.proto");
   GOOGLE_CHECK(file != NULL);
   btPayload_descriptor_ = file->message_type(0);
-  static const int btPayload_offsets_[4] = {
+  static const int btPayload_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(btPayload, addr_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(btPayload, name_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(btPayload, devclass_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(btPayload, btif_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(btPayload, bte_),
   };
@@ -121,38 +122,38 @@ void protobuf_AddDesc_external_2faic_2fbtd_2fbt_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\031external/aic/btd/bt.proto\"\302\t\n\tbtPayloa"
-    "d\022\014\n\004addr\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022$\n\004btif\030\003 "
-    "\001(\0132\026.btPayload.BtifPayload\022\"\n\003bte\030\005 \001(\013"
-    "2\025.btPayload.BtePayload\032\317\007\n\013BtifPayload\022"
-    "5\n\003cmd\030\004 \001(\0162\".btPayload.BtifPayload.cmd"
-    "TypeBtif:\004INIT\"\210\007\n\013cmdTypeBtif\022\010\n\004INIT\020\000"
-    "\022\n\n\006ENABLE\020\001\022\013\n\007DISABLE\020\002\022\013\n\007CLEANUP\020\003\022\032"
-    "\n\026GET_ADAPTER_PROPERTIES\020\004\022\030\n\024GET_ADAPTE"
-    "R_PROPERTY\020\005\022\030\n\024SET_ADAPTER_PROPERTY\020\006\022 "
-    "\n\034GET_REMOTE_DEVICE_PROPERTIES\020\007\022\036\n\032GET_"
-    "REMOTE_DEVICE_PROPERTY\020\010\022\036\n\032SET_REMOTE_D"
-    "EVICE_PROPERTY\020\t\022\035\n\031GET_REMOTE_SERVICE_R"
-    "ECORD\020\n\022\027\n\023GET_REMOTE_SERVICES\020\013\022\023\n\017STAR"
-    "T_DISCOVERY\020\014\022\024\n\020CANCEL_DISCOVERY\020\r\022\017\n\013C"
-    "REATE_BOND\020\016\022\017\n\013REMOVE_BOND\020\017\022\017\n\013CANCEL_"
-    "BOND\020\020\022\r\n\tPIN_REPLY\020\021\022\r\n\tSSP_REPLY\020\022\022\031\n\025"
-    "GET_PROFILE_INTERFACE\020\023\022\026\n\022DUT_MODE_CONF"
-    "IGURE\020\024\022\021\n\rDUT_MODE_SEND\020\025\022\020\n\014LE_TEST_MO"
-    "DE\020\026\022\030\n\024CONFIG_HCI_SNOOP_LOG\020\027\022\037\n\033SET_AD"
-    "APTER_PROPERTY_BDNAME\020\030\022\'\n#SET_ADAPTER_P"
-    "ROPERTY_SCAN_MODE_NONE\020\031\022.\n*SET_ADAPTER_"
-    "PROPERTY_SCAN_MODE_CONNECTABLE\020\032\022;\n7SET_"
-    "ADAPTER_PROPERTY_SCAN_MODE_CONNECTABLE_D"
-    "ISCOVERABLE\020\033\022-\n)SET_ADAPTER_PROPERTY_DI"
-    "SCOVERY_TIMEOUT_2M\020\034\022-\n)SET_ADAPTER_PROP"
-    "ERTY_DISCOVERY_TIMEOUT_5M\020\035\022-\n)SET_ADAPT"
-    "ER_PROPERTY_DISCOVERY_TIMEOUT_1H\020\036\022-\n)SE"
-    "T_ADAPTER_PROPERTY_DISCOVERY_TIMEOUT_NE\020"
-    "\037\032}\n\nBtePayload\0226\n\003cmd\030\006 \001(\0162 .btPayload"
-    ".BtePayload.cmdTypeBte:\007INQ_RES\"7\n\ncmdTy"
-    "peBte\022\013\n\007INQ_RES\020d\022\016\n\nBOND_STATE\020e\022\014\n\010DI"
-    "SC_RES\020f", 1248);
+    "\n\031external/aic/btd/bt.proto\"\324\t\n\tbtPayloa"
+    "d\022\014\n\004addr\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\020\n\010devclas"
+    "s\030\003 \001(\t\022$\n\004btif\030\004 \001(\0132\026.btPayload.BtifPa"
+    "yload\022\"\n\003bte\030\006 \001(\0132\025.btPayload.BtePayloa"
+    "d\032\317\007\n\013BtifPayload\0225\n\003cmd\030\005 \001(\0162\".btPaylo"
+    "ad.BtifPayload.cmdTypeBtif:\004INIT\"\210\007\n\013cmd"
+    "TypeBtif\022\010\n\004INIT\020\000\022\n\n\006ENABLE\020\001\022\013\n\007DISABL"
+    "E\020\002\022\013\n\007CLEANUP\020\003\022\032\n\026GET_ADAPTER_PROPERTI"
+    "ES\020\004\022\030\n\024GET_ADAPTER_PROPERTY\020\005\022\030\n\024SET_AD"
+    "APTER_PROPERTY\020\006\022 \n\034GET_REMOTE_DEVICE_PR"
+    "OPERTIES\020\007\022\036\n\032GET_REMOTE_DEVICE_PROPERTY"
+    "\020\010\022\036\n\032SET_REMOTE_DEVICE_PROPERTY\020\t\022\035\n\031GE"
+    "T_REMOTE_SERVICE_RECORD\020\n\022\027\n\023GET_REMOTE_"
+    "SERVICES\020\013\022\023\n\017START_DISCOVERY\020\014\022\024\n\020CANCE"
+    "L_DISCOVERY\020\r\022\017\n\013CREATE_BOND\020\016\022\017\n\013REMOVE"
+    "_BOND\020\017\022\017\n\013CANCEL_BOND\020\020\022\r\n\tPIN_REPLY\020\021\022"
+    "\r\n\tSSP_REPLY\020\022\022\031\n\025GET_PROFILE_INTERFACE\020"
+    "\023\022\026\n\022DUT_MODE_CONFIGURE\020\024\022\021\n\rDUT_MODE_SE"
+    "ND\020\025\022\020\n\014LE_TEST_MODE\020\026\022\030\n\024CONFIG_HCI_SNO"
+    "OP_LOG\020\027\022\037\n\033SET_ADAPTER_PROPERTY_BDNAME\020"
+    "\030\022\'\n#SET_ADAPTER_PROPERTY_SCAN_MODE_NONE"
+    "\020\031\022.\n*SET_ADAPTER_PROPERTY_SCAN_MODE_CON"
+    "NECTABLE\020\032\022;\n7SET_ADAPTER_PROPERTY_SCAN_"
+    "MODE_CONNECTABLE_DISCOVERABLE\020\033\022-\n)SET_A"
+    "DAPTER_PROPERTY_DISCOVERY_TIMEOUT_2M\020\034\022-"
+    "\n)SET_ADAPTER_PROPERTY_DISCOVERY_TIMEOUT"
+    "_5M\020\035\022-\n)SET_ADAPTER_PROPERTY_DISCOVERY_"
+    "TIMEOUT_1H\020\036\022-\n)SET_ADAPTER_PROPERTY_DIS"
+    "COVERY_TIMEOUT_NE\020\037\032}\n\nBtePayload\0226\n\003cmd"
+    "\030\007 \001(\0162 .btPayload.BtePayload.cmdTypeBte"
+    ":\007INQ_RES\"7\n\ncmdTypeBte\022\013\n\007INQ_RES\020d\022\016\n\n"
+    "BOND_STATE\020e\022\014\n\010DISC_RES\020f", 1266);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "external/aic/btd/bt.proto", &protobuf_RegisterTypes);
   btPayload::default_instance_ = new btPayload();
@@ -322,8 +323,8 @@ bool btPayload_BtifPayload::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .btPayload.BtifPayload.cmdTypeBtif cmd = 4 [default = INIT];
-      case 4: {
+      // optional .btPayload.BtifPayload.cmdTypeBtif cmd = 5 [default = INIT];
+      case 5: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
           int value;
@@ -333,7 +334,7 @@ bool btPayload_BtifPayload::MergePartialFromCodedStream(
           if (::btPayload_BtifPayload_cmdTypeBtif_IsValid(value)) {
             set_cmd(static_cast< ::btPayload_BtifPayload_cmdTypeBtif >(value));
           } else {
-            mutable_unknown_fields()->AddVarint(4, value);
+            mutable_unknown_fields()->AddVarint(5, value);
           }
         } else {
           goto handle_uninterpreted;
@@ -360,10 +361,10 @@ bool btPayload_BtifPayload::MergePartialFromCodedStream(
 
 void btPayload_BtifPayload::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // optional .btPayload.BtifPayload.cmdTypeBtif cmd = 4 [default = INIT];
+  // optional .btPayload.BtifPayload.cmdTypeBtif cmd = 5 [default = INIT];
   if (_has_bit(0)) {
     ::google::protobuf::internal::WireFormatLite::WriteEnum(
-      4, this->cmd(), output);
+      5, this->cmd(), output);
   }
   
   if (!unknown_fields().empty()) {
@@ -374,10 +375,10 @@ void btPayload_BtifPayload::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* btPayload_BtifPayload::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // optional .btPayload.BtifPayload.cmdTypeBtif cmd = 4 [default = INIT];
+  // optional .btPayload.BtifPayload.cmdTypeBtif cmd = 5 [default = INIT];
   if (_has_bit(0)) {
     target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
-      4, this->cmd(), target);
+      5, this->cmd(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -391,7 +392,7 @@ int btPayload_BtifPayload::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .btPayload.BtifPayload.cmdTypeBtif cmd = 4 [default = INIT];
+    // optional .btPayload.BtifPayload.cmdTypeBtif cmd = 5 [default = INIT];
     if (has_cmd()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::EnumSize(this->cmd());
@@ -558,8 +559,8 @@ bool btPayload_BtePayload::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .btPayload.BtePayload.cmdTypeBte cmd = 6 [default = INQ_RES];
-      case 6: {
+      // optional .btPayload.BtePayload.cmdTypeBte cmd = 7 [default = INQ_RES];
+      case 7: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
           int value;
@@ -569,7 +570,7 @@ bool btPayload_BtePayload::MergePartialFromCodedStream(
           if (::btPayload_BtePayload_cmdTypeBte_IsValid(value)) {
             set_cmd(static_cast< ::btPayload_BtePayload_cmdTypeBte >(value));
           } else {
-            mutable_unknown_fields()->AddVarint(6, value);
+            mutable_unknown_fields()->AddVarint(7, value);
           }
         } else {
           goto handle_uninterpreted;
@@ -596,10 +597,10 @@ bool btPayload_BtePayload::MergePartialFromCodedStream(
 
 void btPayload_BtePayload::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // optional .btPayload.BtePayload.cmdTypeBte cmd = 6 [default = INQ_RES];
+  // optional .btPayload.BtePayload.cmdTypeBte cmd = 7 [default = INQ_RES];
   if (_has_bit(0)) {
     ::google::protobuf::internal::WireFormatLite::WriteEnum(
-      6, this->cmd(), output);
+      7, this->cmd(), output);
   }
   
   if (!unknown_fields().empty()) {
@@ -610,10 +611,10 @@ void btPayload_BtePayload::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* btPayload_BtePayload::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // optional .btPayload.BtePayload.cmdTypeBte cmd = 6 [default = INQ_RES];
+  // optional .btPayload.BtePayload.cmdTypeBte cmd = 7 [default = INQ_RES];
   if (_has_bit(0)) {
     target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
-      6, this->cmd(), target);
+      7, this->cmd(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -627,7 +628,7 @@ int btPayload_BtePayload::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .btPayload.BtePayload.cmdTypeBte cmd = 6 [default = INQ_RES];
+    // optional .btPayload.BtePayload.cmdTypeBte cmd = 7 [default = INQ_RES];
     if (has_cmd()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::EnumSize(this->cmd());
@@ -706,9 +707,11 @@ void btPayload_BtePayload::Swap(btPayload_BtePayload* other) {
 
 const ::std::string btPayload::_default_addr_;
 const ::std::string btPayload::_default_name_;
+const ::std::string btPayload::_default_devclass_;
 #ifndef _MSC_VER
 const int btPayload::kAddrFieldNumber;
 const int btPayload::kNameFieldNumber;
+const int btPayload::kDevclassFieldNumber;
 const int btPayload::kBtifFieldNumber;
 const int btPayload::kBteFieldNumber;
 #endif  // !_MSC_VER
@@ -733,6 +736,7 @@ void btPayload::SharedCtor() {
   _cached_size_ = 0;
   addr_ = const_cast< ::std::string*>(&_default_addr_);
   name_ = const_cast< ::std::string*>(&_default_name_);
+  devclass_ = const_cast< ::std::string*>(&_default_devclass_);
   btif_ = NULL;
   bte_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -748,6 +752,9 @@ void btPayload::SharedDtor() {
   }
   if (name_ != &_default_name_) {
     delete name_;
+  }
+  if (devclass_ != &_default_devclass_) {
+    delete devclass_;
   }
   if (this != default_instance_) {
     delete btif_;
@@ -788,9 +795,14 @@ void btPayload::Clear() {
       }
     }
     if (_has_bit(2)) {
-      if (btif_ != NULL) btif_->::btPayload_BtifPayload::Clear();
+      if (devclass_ != &_default_devclass_) {
+        devclass_->clear();
+      }
     }
     if (_has_bit(3)) {
+      if (btif_ != NULL) btif_->::btPayload_BtifPayload::Clear();
+    }
+    if (_has_bit(4)) {
       if (bte_ != NULL) bte_->::btPayload_BtePayload::Clear();
     }
   }
@@ -833,12 +845,29 @@ bool btPayload::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(26)) goto parse_btif;
+        if (input->ExpectTag(26)) goto parse_devclass;
         break;
       }
       
-      // optional .btPayload.BtifPayload btif = 3;
+      // optional string devclass = 3;
       case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_devclass:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_devclass()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->devclass().data(), this->devclass().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(34)) goto parse_btif;
+        break;
+      }
+      
+      // optional .btPayload.BtifPayload btif = 4;
+      case 4: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_btif:
@@ -847,12 +876,12 @@ bool btPayload::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(42)) goto parse_bte;
+        if (input->ExpectTag(50)) goto parse_bte;
         break;
       }
       
-      // optional .btPayload.BtePayload bte = 5;
-      case 5: {
+      // optional .btPayload.BtePayload bte = 6;
+      case 6: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_bte:
@@ -901,16 +930,25 @@ void btPayload::SerializeWithCachedSizes(
       2, this->name(), output);
   }
   
-  // optional .btPayload.BtifPayload btif = 3;
+  // optional string devclass = 3;
   if (_has_bit(2)) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, this->btif(), output);
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->devclass().data(), this->devclass().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      3, this->devclass(), output);
   }
   
-  // optional .btPayload.BtePayload bte = 5;
+  // optional .btPayload.BtifPayload btif = 4;
   if (_has_bit(3)) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, this->bte(), output);
+      4, this->btif(), output);
+  }
+  
+  // optional .btPayload.BtePayload bte = 6;
+  if (_has_bit(4)) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      6, this->bte(), output);
   }
   
   if (!unknown_fields().empty()) {
@@ -941,18 +979,28 @@ void btPayload::SerializeWithCachedSizes(
         2, this->name(), target);
   }
   
-  // optional .btPayload.BtifPayload btif = 3;
+  // optional string devclass = 3;
   if (_has_bit(2)) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        3, this->btif(), target);
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->devclass().data(), this->devclass().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        3, this->devclass(), target);
   }
   
-  // optional .btPayload.BtePayload bte = 5;
+  // optional .btPayload.BtifPayload btif = 4;
   if (_has_bit(3)) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        5, this->bte(), target);
+        4, this->btif(), target);
+  }
+  
+  // optional .btPayload.BtePayload bte = 6;
+  if (_has_bit(4)) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        6, this->bte(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -980,14 +1028,21 @@ int btPayload::ByteSize() const {
           this->name());
     }
     
-    // optional .btPayload.BtifPayload btif = 3;
+    // optional string devclass = 3;
+    if (has_devclass()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->devclass());
+    }
+    
+    // optional .btPayload.BtifPayload btif = 4;
     if (has_btif()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->btif());
     }
     
-    // optional .btPayload.BtePayload bte = 5;
+    // optional .btPayload.BtePayload bte = 6;
     if (has_bte()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
@@ -1028,9 +1083,12 @@ void btPayload::MergeFrom(const btPayload& from) {
       set_name(from.name());
     }
     if (from._has_bit(2)) {
-      mutable_btif()->::btPayload_BtifPayload::MergeFrom(from.btif());
+      set_devclass(from.devclass());
     }
     if (from._has_bit(3)) {
+      mutable_btif()->::btPayload_BtifPayload::MergeFrom(from.btif());
+    }
+    if (from._has_bit(4)) {
       mutable_bte()->::btPayload_BtePayload::MergeFrom(from.bte());
     }
   }
@@ -1058,6 +1116,7 @@ void btPayload::Swap(btPayload* other) {
   if (other != this) {
     std::swap(addr_, other->addr_);
     std::swap(name_, other->name_);
+    std::swap(devclass_, other->devclass_);
     std::swap(btif_, other->btif_);
     std::swap(bte_, other->bte_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
